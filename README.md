@@ -109,6 +109,83 @@ kubectl get pvc fedora -o yaml
 * Create the VM
 * SSH into the vm
 
+Create SSH key-pair - I accepted defaults you may want to change things, but if you do update the following instructions manually.
+```
+ssh-keygen -t rsa
+```
+
+Create/Download the manifest
+```
+cat <<EOF > vm1_pvc.yml
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  creationTimestamp: 2018-07-04T15:03:08Z
+  generation: 1
+  labels:
+    kubevirt.io/os: linux
+  name: vm1
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        kubevirt.io/domain: vm1
+    spec:
+      domain:
+        cpu:
+          cores: 2
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: disk0
+          - cdrom:
+              bus: sata
+              readonly: true
+            name: cloudinitdisk
+        machine:
+          type: q35
+        resources:
+          requests:
+            memory: 1024M
+      volumes:
+      - name: disk0
+        persistentVolumeClaim:
+          claimName: fedora
+      - cloudInitNoCloud:
+          userData: |
+            #cloud-config
+            hostname: vm1
+            ssh_pwauth: True
+            disable_root: false
+            ssh_authorized_keys:
+            - ssh-rsa YOUR_SSH_PUB_KEY_HERE
+        name: cloudinitdisk
+EOF
+```
+
+Inject the SSH Key
+```
+PUBKEY=`cat ~/.ssh/id_rsa.pub`
+sed -i "s%ssh-rsa.*%$PUBKEY%" vm1_pvc.yml
+```
+
+Create the VM
+```
+kubectl create -f vm1_pvc.yml
+```
+The image will download and the vm get created, you will have to wait until VM Instance is running. You can see all this by running
+```
+kubectl get all
+```
+
+SSH into the VM - get the VM IP from command above - user is fedora if the SSH keygen worked then it should auto login
+```
+# exanmple ssh fedora@10.42.0.45
+ssh fedora@[VM IP GOES HERE]
+```
 
 ## Sources
-* 
+* https://kubevirt.io/labs/kubernetes/lab2.html
