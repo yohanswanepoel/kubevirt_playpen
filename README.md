@@ -70,8 +70,33 @@ Verify the components are running
 kubectl get cdi cdi -n cdi
 ```
 
-### Import the VM
-
+### Import the Disk Image VM
+Create the YAML Manifest
+**Take NOTE** 
+* This is where I needed to add accessModes as ReadWriteOnce (for k3s)
+* Also make sure the raw.xz cloud image is at the URL
+```
+cat <<EOF > dv_fedora.yml
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: "fedora"
+spec:
+  storage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+  source:
+    http:
+      url: "https://download.fedoraproject.org/pub/fedora/linux/releases/43/Cloud/x86_64/images/Fedora-Cloud-Base-AmazonEC2-43-1.6.x86_64.raw.xz"
+EOF
+```
+Create the volume
+```
+kubectl create -f dv_fedora.yml
+```
 
 ### Initialise the VM
 
