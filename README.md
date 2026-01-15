@@ -27,9 +27,13 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 ### Install virtctl CLI
 The easy way - still as root or use sudo
+Get the latest version
 ```
 export VERSION=$(curl https://storage.googleapis.com/kubevirt-prow/release/kubevirt/kubevirt/stable.txt)
 wget https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/virtctl-${VERSION}-linux-amd64
+```
+Put it somewhere you can run it
+```
 mv virtctl-${VERSION}-linux-amd64 virtctl
 install virtctl /usr/local/bin/
 ```
