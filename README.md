@@ -97,8 +97,17 @@ Create the volume
 ```
 kubectl create -f dv_fedora.yml
 ```
+Validate
+```
+kubectl get pvc fedora -o yaml
+```
 
 ### Initialise the VM
+* Steps create a SSH key to inject into the image
+* Create the manifest
+* Inject the SSH key
+* Create the VM
+* SSH into the vm
 
 
 ## Sources
